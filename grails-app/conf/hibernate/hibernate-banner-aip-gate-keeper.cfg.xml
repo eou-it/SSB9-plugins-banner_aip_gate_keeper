@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--*****************************************************************************
+Copyright 2018 Ellucian Company L.P. and its affiliates.
+*********************************************************************************-->
+
+<!--
+ Hibernate configuration file. All mapped classes must be identified within this
+ configuration file.  Note: Annotations within the class files are used in lieu
+ of additional mapping files.  JPA is not used, hence while annotations are leveraged
+ there is no concept of an 'entity manager' within this project.
+ -->
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
+        <mapping class="net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly"/>
+    </session-factory>
+</hibernate-configuration>
