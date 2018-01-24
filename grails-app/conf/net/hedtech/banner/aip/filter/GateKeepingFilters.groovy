@@ -4,7 +4,7 @@
 
 package net.hedtech.banner.aip.filter
 
-import net.hedtech.banner.aip.blocking.process.UserBlockedProcessReadOnly
+import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import net.hedtech.banner.security.BannerUser
 import org.apache.commons.logging.Log
