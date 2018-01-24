@@ -1,5 +1,5 @@
 /*********************************************************************************
- Copyright 2016-2017 Ellucian Company L.P. and its affiliates.
+ Copyright 2018 Ellucian Company L.P. and its affiliates.
  **********************************************************************************/
 package net.hedtech.banner.aip.gatekeeping
 
@@ -31,7 +31,7 @@ import javax.persistence.*
 @Table(name = "GVQ_GCRABLK")
 @ToString(includeNames = true, ignoreNulls = true)
 @EqualsAndHashCode(includeFields = true)
-class UserBlockedProcessReadOnly implements Serializable{
+class UserBlockedProcessReadOnly implements Serializable {
     /**
      *  Action Item ID in GCRABLK
      */
@@ -55,29 +55,52 @@ class UserBlockedProcessReadOnly implements Serializable{
     @Column(name = "ACTION_ITEM_IS_BLOCKING")
     Boolean isBlocking = false
 
-/*
 
-    @Column(name = "block_activity_date")
-    Date lastModified
+    @Column(name = "BLOCKED_PROCESS_ID")
+    Long blockedProcessId
 
-    @Column(name = "block_user_id")
-    String lastModifiedBy
+    @Column(name = "BLOCKED_PROCESS_NAME")
+    String blockedProcessName
+
+    @Column(name = "BLOCKED_PROCESS_URL")
+    String blockedProcessUrl
+
+
+    @Column(name = "ACTION_ITEM_START_DATE")
+    Date actionItemStartDate
+
+
+    @Column(name = "ACTION_ITEM_END_DATE")
+    Date actionItemEndDate
+
+
+    @Column(name = "PROCESS_GTVSYSI_CODE")
+    String processGtvsysiCode
+
+
+    @Column(name = "PROCESS_GLOBAL_BLOCK_IND")
+    String processGlobalBlockInd
+
+
+    @Column(name = "PROCESS_PERSONAL_BLKD_ALLOWED")
+    String processPersonaBlkdAllowed
+
+
+    @Column(name = "PROCESS_SYSTEM_REQUIRED_IND")
+    String processSystemRequiredInd
 
 
     @Version
     @Column(name = "BLOCK_VERSION")
     Long version
 
-    @Column(name = "block_surrogate_id")
-    Long blockId
 
-    @Column(name = "action_item_activity_date")
-    Date actionItemLastModified
+    @Column(name = "block_user_id")
+    String lastModifiedBy
 
-    @Column(name = "action_item_user_id")
-    String actionItemModifiedBy
-*/
 
+    @Column(name = "block_activity_date")
+    Date lastModified
 
     //static constraints = {
     //    actionItemId( nullable: false, maxSize: 19 )
@@ -94,7 +117,7 @@ class UserBlockedProcessReadOnly implements Serializable{
     static def fetchBlockingProcessesROByPidmAndActionItemId( Long pidm, Long aid ) {
         UserBlockedProcessReadOnly.withSession {session ->
             session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchIsBlockedROsByPidmAndId' )
-                    .setLong('myPidm', pidm ).setLong('aid', aid )?.list()[0]
+                    .setLong( 'myPidm', pidm ).setLong( 'aid', aid )?.list()[0]
         }
     }
 
@@ -105,12 +128,11 @@ class UserBlockedProcessReadOnly implements Serializable{
      * @return
      */
     static def fetchBlockingProcessesROByPidm( Long pidm ) {
-        UserBlockedProcessReadOnly.withSession { session ->
+        UserBlockedProcessReadOnly.withSession {session ->
             session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchIsBlockedROsByPidm' )
                     .setLong( 'myPidm', pidm )?.list()[0]
         }
     }
-
 
     /**
      *
@@ -120,7 +142,7 @@ class UserBlockedProcessReadOnly implements Serializable{
      */
     // Probably not needed. using in proof of concept
     static def fetchProcessesROByPidm( Long pidm ) {
-        UserBlockedProcessReadOnly.withSession { session ->
+        UserBlockedProcessReadOnly.withSession {session ->
             session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchROsByPidm' )
                     .setLong( 'myPidm', pidm )?.list()[0]
         }
