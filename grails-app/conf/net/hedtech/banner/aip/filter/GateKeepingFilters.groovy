@@ -11,7 +11,7 @@ import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.codehaus.groovy.grails.web.servlet.GrailsUrlPathHelper
 import org.springframework.security.core.context.SecurityContextHolder
-
+import net.hedtech.banner.general.ConfigurationData
 import javax.servlet.http.HttpSession
 
 class GateKeepingFilters {
@@ -76,10 +76,9 @@ class GateKeepingFilters {
                                     String uri = request.getScheme() + "://" +   // "http" + "://
                                             request.getServerName()
                                     //response.addHeader("Access-Control-Allow-Origin", "*");
-                                    // FIXME: goto general app. We need to be able to look up the location
-                                    // FIXME: make this configurable
-                                    redirect( url: "http://csr-daily-1.ellucian.com:8080/BannerGeneralSsb/ssb/aip/informedList#/informedList" )
-                                    //    redirect( url: uri + ":8090/StudentRegistrationSsb/ssb/registrationHistory/registrationHistory" )
+                                    // lookup by name and type (and appId) and cache
+                                    String base = ConfigurationData.fetchByNameAndType( 'GENERALLOCATION', 'string', 'GENERAL_SS' )
+                                    redirect( url: base + "/ssb/aip/informedList#/informedList" )
                                     return false
                                 }
                             }

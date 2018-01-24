@@ -5,7 +5,6 @@ package net.hedtech.banner.aip.filter
 
 import grails.util.GrailsWebUtil
 import grails.util.Holders
-import groovy.sql.Sql
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import net.hedtech.banner.general.person.PersonUtility
 import net.hedtech.banner.testing.BaseIntegrationTestCase
@@ -14,14 +13,20 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
+import net.hedtech.banner.general.ConfigurationData
 
 /**
  * GateKeepingFiltersIntegrationTests.
  */
 class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
-    public static final String UNBLOCKEDURI = '/somethingrandom'
+    static final String UNBLOCKEDURI = '/somethingrandom'
+
     static final String BLOCKREGISTERFORCOURSES = '/ssb/term/termSelection?mode=registration'
+
+    static final String TESTGENERALURL = 'https://someplace.mytestplace.edu'
+
+    static final String SHIPPEDURI = "/ssb/aip/informedList#/informedList"
 
     def filterInterceptor
 
@@ -80,7 +85,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     @Test
     void testFilterNoRedirect() {
-        setGORICCR('Y')
+        setGORICCR( 'Y' )
         def person = PersonUtility.getPerson( "CSRSTU013" ) // user has no blocking AIs
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
@@ -99,7 +104,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     @Test
     void testFilterRedirect() {
-        setGORICCR('Y')
+        setGORICCR( 'Y' )
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
@@ -113,13 +118,13 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
         assertNotNull( response.redirectedUrl )
         CharSequence cs1 = "informedList";
-        assertTrue ( response.redirectedUrl.contains(cs1) )
+        assertTrue( response.redirectedUrl.contains( cs1 ) )
     }
 
 
     @Test
     void testGORICCRBlockingOn() {
-        setGORICCR('Y')
+        setGORICCR( 'Y' )
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
@@ -140,7 +145,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     @Test
     void testGORICCRBlockingOff() {
-        setGORICCR('N')
+        setGORICCR( 'N' )
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
@@ -154,6 +159,56 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assert result
 
         assertNull( response.redirectedUrl )
+    }
+
+
+    @Test
+    void testConfiguredLookupRedirectLocation() {
+        setGORICCR( 'Y' )
+        String configuredBase = ConfigurationData.fetchByNameAndType(
+                'GENERALLOCATION', 'string', 'GENERAL_SS' )
+
+
+        def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
+        assertNotNull person
+        loginSSB( person.bannerId, '111111' )
+
+        MockHttpServletRequest request = new MockHttpServletRequest()
+
+        request.characterEncoding = 'UTF-8'
+        request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
+
+        doRequest( request )
+
+        assertNotNull( response.redirectedUrl )
+        CharSequence cs1 = "informedList"
+        assertTrue( response.redirectedUrl.contains( cs1 ) )
+        assertEquals( configuredBase + SHIPPEDURI, response.redirectedUrl )
+    }
+
+
+    @Test
+    void testChangedLookupRedirectLocation() {
+        setGORICCR( 'Y' )
+        // change location to something not ellucian
+        setGeneralAppLocation( TESTGENERALURL )
+
+        def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
+        assertNotNull person
+        loginSSB( person.bannerId, '111111' )
+
+        MockHttpServletRequest request = new MockHttpServletRequest()
+
+        request.characterEncoding = 'UTF-8'
+        request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
+
+        doRequest( request )
+
+        assertNotNull( response.redirectedUrl )
+        CharSequence cs1 = "informedList";
+        CharSequence cs2 = TESTGENERALURL;
+        assertTrue( response.redirectedUrl.contains( cs1 ) )
+        assertTrue( response.redirectedUrl.contains( cs2 ) )
     }
 
 
@@ -171,9 +226,18 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     }
 
 
+    private void setGeneralAppLocation( String value ) {
+        def nameSQL = """update gurocfg set GUROCFG_VALUE = ? WHERE GUROCFG_NAME = 'GENERALLOCATION' AND GUROCFG_GUBAPPL_APP_ID = 'GENERAL_SS'"""
+        sessionFactory.getCurrentSession().createSQLQuery( nameSQL ).setString( 0, value ).executeUpdate()
+
+        assertEquals( value, ConfigurationData.fetchByNameAndType( 'GENERALLOCATION', 'string', 'GENERAL_SS' )
+                .value )
+    }
+
+
     private void setGORICCR( String value ) {
         def nameSQL = """update goriccr set goriccr_value = ? where goriccr_icsn_code = 'ENABLE.ACTION.ITEMS' and goriccr_sqpr_code = 'GENERAL_SSB'"""
-        sessionFactory.getCurrentSession().createSQLQuery(nameSQL).setString(0, value).executeUpdate()
+        sessionFactory.getCurrentSession().createSQLQuery( nameSQL ).setString( 0, value ).executeUpdate()
 
         assertEquals( value, IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value )
     }
