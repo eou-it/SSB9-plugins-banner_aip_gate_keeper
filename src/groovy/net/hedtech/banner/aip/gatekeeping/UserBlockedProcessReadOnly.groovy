@@ -82,7 +82,7 @@ class UserBlockedProcessReadOnly implements Serializable {
     String processGlobalBlockInd
 
 
-    @Column(name = "PROCESS_PERSONAL_BLKD_ALLOWED")
+    @Column(name = "PROCESS_PERSONA_BLKD_ALLOWED")
     String processPersonaBlkdAllowed
 
 
