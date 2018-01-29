@@ -29,10 +29,8 @@ hibernate {
             "classpath:hibernate-banner-aip-gate-keeper.cfg.xml",
             "classpath:hibernate-banner-core.cfg.xml",
             "classpath:hibernate-banner-general-utility.cfg.xml",
-            "classpath:hibernate-banner-general-common.cfg.xml",
             "classpath:hibernate-banner-general-person.cfg.xml",
-            "classpath:hibernate-banner-general-validation-common.cfg.xml",
-            "classpath:hibernate-banner-sspb.cfg.xml"
+            "classpath:hibernate-banner-general-validation-common.cfg.xml"
     ]
 }
 
