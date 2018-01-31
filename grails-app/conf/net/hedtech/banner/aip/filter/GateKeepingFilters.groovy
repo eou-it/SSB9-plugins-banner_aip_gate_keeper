@@ -4,6 +4,7 @@
 
 package net.hedtech.banner.aip.filter
 
+import grails.util.Holders
 import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import net.hedtech.banner.security.BannerUser
@@ -77,7 +78,8 @@ class GateKeepingFilters {
                                             request.getServerName()
                                     //response.addHeader("Access-Control-Allow-Origin", "*");
                                     // lookup by name and type (and appId) and cache
-                                    String base = ConfigurationData.fetchByNameAndType( 'GENERALLOCATION', 'string', 'GENERAL_SS' )
+                                    String base = Holders.config.GENERALLOCATION
+                                    println 'base ' + base
                                     redirect( url: base + "/ssb/aip/informedList#/informedList" )
                                     return false
                                 }

@@ -13,7 +13,6 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import net.hedtech.banner.general.ConfigurationData
 
 /**
  * GateKeepingFiltersIntegrationTests.
@@ -39,6 +38,8 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     public void setUp() {
         formContext = ['GUAGMNU']
         super.setUp()
+        Holders.config.BANNER_AIP_BLOCK_PROCESS_PERSONA = ['EVERYONE', 'STUDENT', 'REGISTRAR', 'FACULTYINSTRUCTOR', 'FACULTYADVISOR', 'FACULTYBOTH']
+        Holders.config.GENERALLOCATION = TESTGENERALURL
     }
 
 
@@ -46,6 +47,8 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     public void tearDown() {
         logout()
         super.tearDown()
+        Holders.config.BANNER_AIP_BLOCK_PROCESS_PERSONA = []
+        Holders.config.GENERALLOCATION = null
     }
 
     def formControllerMap = [
@@ -165,8 +168,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     @Test
     void testConfiguredLookupRedirectLocation() {
         setGORICCR( 'Y' )
-        String configuredBase = ConfigurationData.fetchByNameAndType(
-                'GENERALLOCATION', 'string', 'GENERAL_SS' )
+        String configuredBase = Holders.config.GENERALLOCATION
 
 
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
@@ -230,8 +232,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         def nameSQL = """update gurocfg set GUROCFG_VALUE = ? WHERE GUROCFG_NAME = 'GENERALLOCATION' AND GUROCFG_GUBAPPL_APP_ID = 'GENERAL_SS'"""
         sessionFactory.getCurrentSession().createSQLQuery( nameSQL ).setString( 0, value ).executeUpdate()
 
-        assertEquals( value, ConfigurationData.fetchByNameAndType( 'GENERALLOCATION', 'string', 'GENERAL_SS' )
-                .value )
+        assertEquals( value, Holders.config.GENERALLOCATION )
     }
 
 
