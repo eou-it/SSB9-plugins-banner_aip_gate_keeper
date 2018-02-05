@@ -35,7 +35,7 @@ class UserBlockedProcessIntegrationTests extends BaseIntegrationTestCase {
     void testFilterNoRedirect() {
         loginSSB( 'CSRSTU002', '111111' )
         def result = UserBlockedProcessReadOnly.fetchBlockedProcesses( springSecurityService.getAuthentication().user.pidm )
-        assert result.size() == 2
+        assert result.size() > 0
     }
 
 }
