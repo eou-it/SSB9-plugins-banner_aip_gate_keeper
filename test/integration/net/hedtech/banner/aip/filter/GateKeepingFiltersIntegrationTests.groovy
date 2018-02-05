@@ -21,11 +21,11 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     static final String UNBLOCKEDURI = '/somethingrandom'
 
-    static final String BLOCKREGISTERFORCOURSES = '/ssb/term/termSelection?mode=registration'
+    static final String BLOCKREGISTERFORCOURSES = 'ssb/term/termSelection?mode=preReg'
 
     static final String TESTGENERALURL = 'https://someplace.mytestplace.edu'
 
-    static final String SHIPPEDURI = "/ssb/aip/informedList#/informedList"
+    static final String SHIPPEDURI = "/ssb/aip/list"
 
     def filterInterceptor
 
@@ -35,19 +35,21 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
 
     @Before
-    public void setUp() {
+    void setUp() {
         formContext = ['GUAGMNU']
         super.setUp()
         Holders.config.BANNER_AIP_BLOCK_PROCESS_PERSONA = ['EVERYONE', 'STUDENT', 'REGISTRAR', 'FACULTYINSTRUCTOR', 'FACULTYADVISOR', 'FACULTYBOTH']
+        Holders.config.BANNER_AIP_EXCLUDE_LIST = ['selfServiceMenu', 'login', 'error', 'dateConverter']
         Holders.config.GENERALLOCATION = TESTGENERALURL
     }
 
 
     @After
-    public void tearDown() {
+    void tearDown() {
         logout()
         super.tearDown()
         Holders.config.BANNER_AIP_BLOCK_PROCESS_PERSONA = []
+        Holders.config.BANNER_AIP_EXCLUDE_LIST = []
         Holders.config.GENERALLOCATION = null
     }
 
@@ -108,6 +110,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     @Test
     void testFilterRedirect() {
         setGORICCR( 'Y' )
+        sessionFactory.getCurrentSession().createSQLQuery( """update gcbbprc set gcbbprc_persona_blkd_allowed='N'""" ).executeUpdate()
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
@@ -120,13 +123,14 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "informedList";
+        CharSequence cs1 = "list";
         assertTrue( response.redirectedUrl.contains( cs1 ) )
     }
 
 
     @Test
     void testGORICCRBlockingOn() {
+        sessionFactory.getCurrentSession().createSQLQuery( """update gcbbprc set gcbbprc_persona_blkd_allowed='N'""" ).executeUpdate()
         setGORICCR( 'Y' )
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
         assertNotNull person
@@ -140,7 +144,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "informedList";
+        CharSequence cs1 = "list";
         assertTrue( response.redirectedUrl.contains( cs1 ) )
 
     }
@@ -168,6 +172,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     @Test
     void testConfiguredLookupRedirectLocation() {
         setGORICCR( 'Y' )
+        sessionFactory.getCurrentSession().createSQLQuery( """update gcbbprc set gcbbprc_persona_blkd_allowed='N'""" ).executeUpdate()
         String configuredBase = Holders.config.GENERALLOCATION
 
 
@@ -183,7 +188,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "informedList"
+        CharSequence cs1 = "list"
         assertTrue( response.redirectedUrl.contains( cs1 ) )
         assertEquals( configuredBase + SHIPPEDURI, response.redirectedUrl )
     }
@@ -193,6 +198,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     void testChangedLookupRedirectLocation() {
         setGORICCR( 'Y' )
         // change location to something not ellucian
+        sessionFactory.getCurrentSession().createSQLQuery( """update gcbbprc set gcbbprc_persona_blkd_allowed='N'""" ).executeUpdate()
         setGeneralAppLocation( TESTGENERALURL )
 
         def person = PersonUtility.getPerson( "CSRSTU002" ) // user has blocking AIs
@@ -207,7 +213,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "informedList";
+        CharSequence cs1 = "list";
         CharSequence cs2 = TESTGENERALURL;
         assertTrue( response.redirectedUrl.contains( cs1 ) )
         assertTrue( response.redirectedUrl.contains( cs2 ) )

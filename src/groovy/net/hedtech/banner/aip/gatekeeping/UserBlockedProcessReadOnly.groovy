@@ -11,21 +11,11 @@ import javax.persistence.*
 
 
 @NamedQueries(value = [
-        @NamedQuery(name = "UserBlockedProcessReadOnly.fetchIsBlockedROsByPidmAndId",
+        @NamedQuery(name = "UserBlockedProcessReadOnly.fetchBlockedProcesses",
                 query = """FROM UserBlockedProcessReadOnly a
-                   WHERE a.pidm = :myPidm
-                   AND a.actionItemId = :aid
-                   AND a.isBlocking = true
-                   """),
-        @NamedQuery(name = "UserBlockedProcessReadOnly.fetchIsBlockedROsByPidm",
-                query = """FROM UserBlockedProcessReadOnly a
-                           WHERE a.pidm = :myPidm                           
-                           AND a.isBlocking = true
-                           """),
-        @NamedQuery(name = "UserBlockedProcessReadOnly.fetchROsByPidm",
-                query = """FROM UserBlockedProcessReadOnly a
-                                   WHERE a.pidm = :myPidm                                                              
-                                   """)
+                           WHERE a.pidm = :myPidm 
+                           AND CURRENT_DATE BETWEEN a.actionItemStartDate AND a.actionItemEndDate
+                           """)
 ])
 @Entity
 @Table(name = "GVQ_GCRABLK")
@@ -36,7 +26,9 @@ class UserBlockedProcessReadOnly implements Serializable {
      *  Action Item ID in GCRABLK
      */
 
-    @Id
+    @EmbeddedId
+    UserActonItemBlockProcessURLCompositeKey id
+
     @Column(name = "ACTION_ITEM_ID")
     Long actionItemId
 
@@ -48,12 +40,26 @@ class UserBlockedProcessReadOnly implements Serializable {
     Long pidm
 
     /**
+     * Persona of process to be blocked
+     */
+
+    @Column(name = "PROCESS_PERSONA")
+    String persona
+
+    /**
      * Does this action Item Block the url
      */
 
     @Type(type = "yes_no")
     @Column(name = "ACTION_ITEM_IS_BLOCKING")
     Boolean isBlocking = false
+
+    @Type(type = "yes_no")
+    @Column(name = "action_item_status_def_ind")
+    Boolean actionItemStatusDefInd
+
+    @Column(name = "action_item_status_rule_name")
+    String actionItemStatusRuleName
 
 
     @Column(name = "BLOCKED_PROCESS_ID")
@@ -102,49 +108,32 @@ class UserBlockedProcessReadOnly implements Serializable {
     @Column(name = "block_activity_date")
     Date lastModified
 
-    //static constraints = {
-    //    actionItemId( nullable: false, maxSize: 19 )
-    //    isBlocking( nullable: false, maxSize: 1 )
-    //    pidm( nullable: false, maxSize: 9 )
-    //}
-
     /**
      *
      * @param pidm
-     * @param aid
      * @return
      */
-    static def fetchBlockingProcessesROByPidmAndActionItemId( Long pidm, Long aid ) {
+    static def fetchBlockedProcesses( Long pidm ) {
         UserBlockedProcessReadOnly.withSession {session ->
-            session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchIsBlockedROsByPidmAndId' )
-                    .setLong( 'myPidm', pidm ).setLong( 'aid', aid )?.list()[0]
+            session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchBlockedProcesses' )
+                    .setLong( 'myPidm', pidm )
+                    .list()
         }
     }
+}
 
-    /**
-     *
-     * @param pidm
-     * @param aid
-     * @return
-     */
-    static def fetchBlockingProcessesROByPidm( Long pidm ) {
-        UserBlockedProcessReadOnly.withSession {session ->
-            session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchIsBlockedROsByPidm' )
-                    .setLong( 'myPidm', pidm )?.list()[0]
-        }
-    }
-
-    /**
-     *
-     * @param pidm
-     * @param aid
-     * @return
-     */
-    // Probably not needed. using in proof of concept
-    static def fetchProcessesROByPidm( Long pidm ) {
-        UserBlockedProcessReadOnly.withSession {session ->
-            session.getNamedQuery( 'UserBlockedProcessReadOnly.fetchROsByPidm' )
-                    .setLong( 'myPidm', pidm )?.list()[0]
-        }
-    }
+@Embeddable
+@ToString(includeNames = true, ignoreNulls = true)
+@EqualsAndHashCode(includeFields = true)
+class UserActonItemBlockProcessURLCompositeKey implements Serializable {
+    @Column(name = 'gcrablk_surrogate_id')
+    Long gcrablkSurrogateId
+    @Column(name = "gcraact_surrogate_id")
+    Long gcraactSurrogateId
+    @Column(name = "gcvasts_surrogate_id")
+    Long gcvastsSurrogateId
+    @Column(name = "gcbbprc_surrogate_id")
+    Long gcbbprcSurrogateId
+    @Column(name = "gcrprcu_surrogate_id")
+    Long gcrprcuSurrogateId
 }
