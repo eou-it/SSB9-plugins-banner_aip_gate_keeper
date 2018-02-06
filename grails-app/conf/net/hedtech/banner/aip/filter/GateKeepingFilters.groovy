@@ -21,8 +21,11 @@ class GateKeepingFilters {
     private static final String YES = 'Y'
     private static final String NO = 'N'
     private static final String PERSONA_EVERYONE = 'EVERYONE'
+    def dependsOn = [net.hedtech.banner.security.AccessControlFilters.class]
     def filters = {
-        actionItemFilter( controller: "selfServiceMenu|login|logout|error|dateConverter", invert: true ) {
+        def BANNER_AIP_EXCLUDE_LIST = Holders.config.BANNER_AIP_EXCLUDE_LIST
+        println 'BANNER_AIP_EXCLUDE_LIST ' + BANNER_AIP_EXCLUDE_LIST
+        actionItemFilter( controller: "$BANNER_AIP_EXCLUDE_LIST", invert: true ) {
             before = {
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
