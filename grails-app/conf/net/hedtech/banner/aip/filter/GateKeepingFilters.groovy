@@ -22,8 +22,7 @@ class GateKeepingFilters {
     private static final String NO = 'N'
     private static final String PERSONA_EVERYONE = 'EVERYONE'
     def filters = {
-        def BANNER_AIP_EXCLUDE_LIST = Holders.config.BANNER_AIP_EXCLUDE_LIST
-        actionItemFilter( controller: 'selfServiceMenu|login|logout|error|dateConverter', invert: true ) {
+        actionItemFilter( controller: "selfServiceMenu|login|logout|error|dateConverter", invert: true ) {
             before = {
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
