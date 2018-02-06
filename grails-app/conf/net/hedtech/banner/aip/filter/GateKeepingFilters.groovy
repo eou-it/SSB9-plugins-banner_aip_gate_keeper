@@ -20,12 +20,18 @@ class GateKeepingFilters {
     private static final String QUESTION_MARK = '?'
     private static final String YES = 'Y'
     private static final String NO = 'N'
+    private static final String PERSONA_EVERYONE = 'EVERYONE'
     def filters = {
         def BANNER_AIP_EXCLUDE_LIST = Holders.config.BANNER_AIP_EXCLUDE_LIST
         println 'BANNER_AIP_EXCLUDE_LIST ' + BANNER_AIP_EXCLUDE_LIST
-        actionItemFilter( controller: BANNER_AIP_EXCLUDE_LIST, invert: true ) {
+        String x = 'selfServiceMenu|login|logout|error|dateConverter'
+        String configuredAction = BANNER_AIP_EXCLUDE_LIST
+        println configuredAction
+        println 'SHiv'
+        actionItemFilter( controller: configuredAction, invert: true ) {
             before = {
-
+                println 'SHiv1'
+                println( configuredAction )
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
                 }
@@ -125,7 +131,7 @@ class GateKeepingFilters {
     private static boolean checkUrl( def param, String pathParam, String pathPersona ) {
         if (param.blockedProcessUrl == pathParam) {
             if (param.processPersonaBlkdAllowed == YES) {
-                return param.persona == pathPersona
+                return param == PERSONA_EVERYONE || param.persona == pathPersona
             }
             return true
         }
