@@ -5,6 +5,7 @@
 package net.hedtech.banner.aip.filter
 
 import grails.util.Holders
+import net.hedtech.banner.aip.gatekeeping.ProcessUrls
 import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import org.apache.commons.logging.Log
@@ -14,7 +15,6 @@ import org.codehaus.groovy.grails.web.servlet.GrailsUrlPathHelper
 class GateKeepingFilters {
     private final Log log = LogFactory.getLog( this.getClass() )
     // Same as in GeneralSsbConfigService. Didn't want to create dependency on General App. This code needs to be consumable by Student Apps
-    def sessionFactory
     def springSecurityService
     private static final String SLASH = '/'
     private static final String QUESTION_MARK = '?'
@@ -42,7 +42,7 @@ class GateKeepingFilters {
                 def urlList = []
                 if (!servletContext['urlList']) {
                     println 'inside setting urlList in app context'
-                    urlList.addAll( sessionFactory.getCurrentSession().createSQLQuery( 'select GCRPRCU_PROCESS_URL FROM GCRPRCU ' ).list() )
+                    urlList.addAll( ProcessUrls.fetchUrls() )
                     servletContext['urlList'] = urlList
                 }
                 urlList = servletContext['urlList']
@@ -70,7 +70,7 @@ class GateKeepingFilters {
                 response.addHeader( 'Access-Control-Allow-Origin', '*' )
                 String base = Holders.config.GENERALLOCATION
                 println 'base ' + base
-                def finalUrl = base + '/ssb/aip/list'
+                def finalUrl = base + '/ssb/aip/informedList#/informedList'
                 println 'Final Url ' + finalUrl
                 redirect( url: finalUrl )
             }

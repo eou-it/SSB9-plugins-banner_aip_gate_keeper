@@ -17,5 +17,6 @@ Copyright 2018 Ellucian Company L.P. and its affiliates.
     <session-factory>
         <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
         <mapping class="net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly"/>
+        <mapping class="net.hedtech.banner.aip.gatekeeping.ProcessUrls"/>
     </session-factory>
 </hibernate-configuration>

@@ -25,7 +25,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     static final String TESTGENERALURL = 'https://someplace.mytestplace.edu'
 
-    static final String SHIPPEDURI = "/ssb/aip/list"
+    static final String SHIPPEDURI = "/ssb/aip/informedList#/informedList"
 
     def filterInterceptor
 
@@ -123,7 +123,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "list";
+        CharSequence cs1 = "informedList";
         assertTrue( response.redirectedUrl.contains( cs1 ) )
     }
 
@@ -144,7 +144,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "list";
+        CharSequence cs1 = "informedList";
         assertTrue( response.redirectedUrl.contains( cs1 ) )
 
     }
@@ -188,7 +188,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "list"
+        CharSequence cs1 = "informedList"
         assertTrue( response.redirectedUrl.contains( cs1 ) )
         assertEquals( configuredBase + SHIPPEDURI, response.redirectedUrl )
     }
@@ -213,7 +213,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         doRequest( request )
 
         assertNotNull( response.redirectedUrl )
-        CharSequence cs1 = "list";
+        CharSequence cs1 = "informedList";
         CharSequence cs2 = TESTGENERALURL;
         assertTrue( response.redirectedUrl.contains( cs1 ) )
         assertTrue( response.redirectedUrl.contains( cs2 ) )
