@@ -235,9 +235,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
 
     private void setGeneralAppLocation( String value ) {
-        def nameSQL = """update gurocfg set GUROCFG_VALUE = ? WHERE GUROCFG_NAME = 'GENERALLOCATION' AND GUROCFG_GUBAPPL_APP_ID = 'GENERAL_SS'"""
-        sessionFactory.getCurrentSession().createSQLQuery( nameSQL ).setString( 0, value ).executeUpdate()
-
+        Holders.config.GENERALLOCATION = value
         assertEquals( value, Holders.config.GENERALLOCATION )
     }
 
