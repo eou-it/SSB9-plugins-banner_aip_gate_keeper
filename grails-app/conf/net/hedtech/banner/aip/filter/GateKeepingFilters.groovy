@@ -23,8 +23,7 @@ class GateKeepingFilters {
     private static final String PERSONA_EVERYONE = 'EVERYONE'
     def dependsOn = [net.hedtech.banner.security.AccessControlFilters.class]
     def filters = {
-        def BANNER_AIP_EXCLUDE_LIST = 'selfServiceMenu|login|logout|error|dateConverter'
-        //def BANNER_AIP_EXCLUDE_LIST = Holders.config.BANNER_AIP_EXCLUDE_LIST
+        def BANNER_AIP_EXCLUDE_LIST = Holders.config.BANNER_AIP_EXCLUDE_LIST
         println 'BANNER_AIP_EXCLUDE_LIST ' + BANNER_AIP_EXCLUDE_LIST
         actionItemFilter( controller: "$BANNER_AIP_EXCLUDE_LIST", invert: true ) {
             before = {
