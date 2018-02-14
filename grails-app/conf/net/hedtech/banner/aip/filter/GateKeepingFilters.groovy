@@ -67,12 +67,7 @@ class GateKeepingFilters {
                 if (!isBlockingUrl) {
                     return true // No Action if no process process
                 }
-                response.addHeader( 'Access-Control-Allow-Origin', '*' )
-                String base = Holders.config.GENERALLOCATION
-                println 'base ' + base
-                def finalUrl = base + '/ssb/aip/informedList#/informedList'
-                println 'Final Url ' + finalUrl
-                redirect( url: finalUrl )
+                redirect( controller: 'aipGateKeeping' )
             }
         }
     }

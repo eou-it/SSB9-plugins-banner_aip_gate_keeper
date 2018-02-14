@@ -4,10 +4,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> <!--TODO Need to load with resources -->
 <script type="text/javascript">
     $(function () {
-        window.location.href = "http://localhost:8081/BannerGeneralSsb/ssb/aip/informedList#/informedList";
+        window.location.href = $url;
     });
 </script>
 </body>

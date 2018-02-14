@@ -4,16 +4,14 @@
 
 package net.hedtech.banner.aip
 
-import grails.converters.JSON
+import grails.util.Holders
 
 /**
  * AIP Controller class to have all API endpoints
  */
 class AipGateKeepingController {
     def index() {
-        def finalUrl = 'http://localhost:8081/BannerGeneralSsb/ssb/aip/informedList#/informedList'
-        //response.sendRedirect(finalUrl )
-        //String xz="abc"
+        def finalUrl = Holders.config.GENERALLOCATION + '/ssb/aip/informedList#/informedList'
         render( model: [url: finalUrl], view: "gatekeeper" )
     }
 }
