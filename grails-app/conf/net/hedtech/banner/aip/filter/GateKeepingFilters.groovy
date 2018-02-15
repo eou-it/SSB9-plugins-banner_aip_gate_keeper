@@ -27,6 +27,11 @@ class GateKeepingFilters {
         println 'BANNER_AIP_EXCLUDE_LIST ' + BANNER_AIP_EXCLUDE_LIST
         actionItemFilter( controller: "$BANNER_AIP_EXCLUDE_LIST", invert: true ) {
             before = {
+                String path = getServletPath( request )
+                println 'The path requested ' + path
+                if(!path){
+                    return true // No Path set then no need to redirect
+                }
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
                 }
@@ -53,8 +58,6 @@ class GateKeepingFilters {
                 // get urls from tables. Check and cache
                 // only want to look at type 'document'? not stylesheet, script, gif, font, ? ?
                 // at this point he getRequestURI returns the forwared dispatcher URL */aip/myplace.dispatch
-                String path = getServletPath( request )
-                println 'The path requested ' + path
                 boolean noUrlToCheck = urlList.find {it.contains( path )} == null
                 println 'No Url to check ' + noUrlToCheck
                 if (noUrlToCheck) {
@@ -67,12 +70,7 @@ class GateKeepingFilters {
                 if (!isBlockingUrl) {
                     return true // No Action if no process process
                 }
-                response.addHeader( 'Access-Control-Allow-Origin', '*' )
-                String base = Holders.config.GENERALLOCATION
-                println 'base ' + base
-                def finalUrl = base + '/ssb/aip/informedList#/informedList'
-                println 'Final Url ' + finalUrl
-                redirect( url: finalUrl )
+                redirect( url: Holders.config.GENERALLOCATION + '/ssb/aip/informedList#/informedList' )
             }
         }
     }
