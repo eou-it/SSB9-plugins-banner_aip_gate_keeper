@@ -11,7 +11,7 @@ import javax.persistence.*
 
 @NamedQueries(value = [
         @NamedQuery(name = "ProcessUrls.fetchUrls",
-                query = """ select processUrl
+                query = """ select distinct processUrl
                             FROM ProcessUrls a
                   """)
 ])
