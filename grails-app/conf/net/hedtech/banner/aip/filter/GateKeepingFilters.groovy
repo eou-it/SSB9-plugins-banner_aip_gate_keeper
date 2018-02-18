@@ -29,17 +29,14 @@ class GateKeepingFilters {
             before = {
                 String path = getServletPath( request )
                 println 'The path requested ' + path
-                if(!path){
+                if (!path) {
                     return true // No Path set then no need to redirect
                 }
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
                 }
                 boolean isAipEnabled = false
-                if (!session['isAipEnabled']) {
-                    session['isAipEnabled'] = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == 'Y'
-                }
-                isAipEnabled = session['isAipEnabled']
+                isAipEnabled = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == 'Y'
                 println 'Is AIP Enabled ' + isAipEnabled
                 if (!isAipEnabled) {
                     return true // NO ACTION If AIP Not enabled
