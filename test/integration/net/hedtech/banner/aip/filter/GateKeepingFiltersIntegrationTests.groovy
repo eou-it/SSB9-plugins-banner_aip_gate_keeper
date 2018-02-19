@@ -21,7 +21,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     static final String UNBLOCKEDURI = '/somethingrandom'
 
-    static final String BLOCKREGISTERFORCOURSES = 'ssb/term/termSelection?mode=preReg'
+    static final String BLOCKREGISTERFORCOURSES = '/ssb/term/termSelection?mode=preReg'
 
     static final String TESTGENERALURL = 'https://someplace.mytestplace.edu'
 
