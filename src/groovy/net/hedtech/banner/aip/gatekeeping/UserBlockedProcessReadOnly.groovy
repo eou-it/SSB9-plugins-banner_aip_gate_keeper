@@ -14,7 +14,7 @@ import javax.persistence.*
         @NamedQuery(name = "UserBlockedProcessReadOnly.fetchBlockedProcesses",
                 query = """FROM UserBlockedProcessReadOnly a
                            WHERE a.pidm = :myPidm 
-                           AND CURRENT_DATE BETWEEN a.actionItemStartDate AND a.actionItemEndDate
+                            AND trunc(CURRENT_DATE) BETWEEN trunc(a.actionItemStartDate) AND trunc(a.actionItemEndDate)
                            """)
 ])
 @Entity
