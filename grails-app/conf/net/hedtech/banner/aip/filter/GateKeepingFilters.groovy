@@ -67,7 +67,14 @@ class GateKeepingFilters {
                 if (!isBlockingUrl) {
                     return true // No Action if no process process
                 }
-                redirect( url: Holders.config.GENERALLOCATION + '/ssb/aip/informedList#/informedList' )
+                String mepCode = session.getAttribute( 'mep' )
+                log.debug( "mepCode $mepCode" )
+                def configUrl = Holders.config.GENERALLOCATION + '/ssb/aip/informedList#/informedList'
+                if (mepCode) {
+                    configUrl = "$configUrl?mepCode=$mepCode"
+                }
+                log.debug( "URL to redirect $configUrl" )
+                redirect( url: configUrl )
             }
         }
     }
