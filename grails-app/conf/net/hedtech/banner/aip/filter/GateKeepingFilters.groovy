@@ -35,8 +35,11 @@ class GateKeepingFilters {
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
                 }
-                boolean isAipEnabled = false
-                isAipEnabled = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES
+                def isAipEnabled = session.getAttribute("aipEnabled")
+                if(!isAipEnabled) {
+                    isAipEnabled = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES
+                    session.setAttribute("aipEnabled", isAipEnabled)
+                }
                 log.debug( "Is AIP Enabled $isAipEnabled" )
                 if (!isAipEnabled) {
                     return true // NO ACTION If AIP Not enabled
