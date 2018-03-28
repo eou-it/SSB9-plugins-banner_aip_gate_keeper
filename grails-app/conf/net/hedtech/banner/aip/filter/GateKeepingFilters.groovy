@@ -10,16 +10,17 @@ import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.web.servlet.GrailsUrlPathHelper
-import org.springframework.util.StopWatch
 
 class GateKeepingFilters {
-    private static final log = Logger.getLogger("net.hedtech.banner.aip.filter.GateKeepingFilters")
+    private static final log = Logger.getLogger( "net.hedtech.banner.aip.filter.GateKeepingFilters" )
     // Same as in GeneralSsbConfigService. Didn't want to create dependency on General App. This code needs to be consumable by Student Apps
     def springSecurityService
     private static final String SLASH = '/'
     private static final String QUESTION_MARK = '?'
     private static final String YES = 'Y'
     private static final String NO = 'N'
+    private static final String ENABLED = 'ENABLED'
+    private static final String DISABLED = 'DISABLED'
     private static final String PERSONA_EVERYONE = 'EVERYONE'
     def dependsOn = [net.hedtech.banner.security.AccessControlFilters.class]
     def filters = {
@@ -28,22 +29,13 @@ class GateKeepingFilters {
         actionItemFilter( controller: "$BANNER_AIP_EXCLUDE_LIST", invert: true ) {
             before = {
                 String path = getServletPath( request )
-                log.debug( "The path requested $path" )
                 if (!path) {
                     return true // No Path set then no need to redirect
                 }
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
                 }
-                def isAipEnabled = session.getAttribute("aipEnabled")
-                if(!isAipEnabled) {
-                    isAipEnabled = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES
-                    session.setAttribute("aipEnabled", isAipEnabled)
-                }
-                log.debug( "Is AIP Enabled $isAipEnabled" )
-                if (!isAipEnabled) {
-                    return true // NO ACTION If AIP Not enabled
-                }
+
                 def urlList = []
                 if (!servletContext['urlList']) {
                     log.debug( "inside setting urlList in app context" )
@@ -54,7 +46,7 @@ class GateKeepingFilters {
                 if (!urlList) {
                     return true // No Action it no process URL maintained in System
                 }
-                log.debug( "urlList from application context${servletContext['urlList']}" )
+
                 // get urls from tables. Check and cache
                 // only want to look at type 'document'? not stylesheet, script, gif, font, ? ?
                 // at this point he getRequestURI returns the forwared dispatcher URL */aip/myplace.dispatch
@@ -63,6 +55,17 @@ class GateKeepingFilters {
                 if (noUrlToCheck) {
                     return true // No Action it requested path is not among URL
                 }
+                String aipEnabledStatus = session.getAttribute( "aipEnabledStatus" )
+                if (!aipEnabledStatus) {
+                    // aipEnabledStatus can have either ENABLED or DISABLED but it should not be null
+                    aipEnabledStatus = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES ? ENABLED : DISABLED
+                    session.setAttribute( "aipEnabledStatus", aipEnabledStatus )
+                }
+                log.debug( "AIP $aipEnabledStatus" )
+                if (aipEnabledStatus == DISABLED) {
+                    return true // NO ACTION If AIP Not enabled
+                }
+
                 def persona = session.getAttribute( 'selectedRole' )?.persona?.code
                 log.debug( "Persona $persona" )
                 def isBlockingUrl = isBlockingUrl( springSecurityService.getAuthentication().user.pidm, path, persona )
@@ -103,14 +106,8 @@ class GateKeepingFilters {
 
     // look a ThemeUtil for expiring cache pattern
     private boolean isBlockingUrl( long pidm, String path, String persona ) {
-        log.debug( "param => pidm: $pidm , path : $path, persona : $persona" )
-        StopWatch stopWatch = new StopWatch("GateKeepingFilters.isBlockingUrl")
-        stopWatch.start("UserBlockedProcessReadOnly")
 
         List<UserBlockedProcessReadOnly> blockedActionItemList = UserBlockedProcessReadOnly.fetchBlockedProcesses( pidm )
-
-        stopWatch.stop()
-        log.debug stopWatch.prettyPrint()
 
         if (!blockedActionItemList) {
             return false
