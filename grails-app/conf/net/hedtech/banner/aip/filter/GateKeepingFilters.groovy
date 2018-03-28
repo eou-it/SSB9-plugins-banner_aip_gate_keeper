@@ -28,7 +28,6 @@ class GateKeepingFilters {
         actionItemFilter( controller: "$BANNER_AIP_EXCLUDE_LIST", invert: true ) {
             before = {
                 String path = getServletPath( request )
-                log.debug( "The path requested $path" )
                 if (!path) {
                     return true // No Path set then no need to redirect
                 }
@@ -36,9 +35,9 @@ class GateKeepingFilters {
                     return true // No Action If not logged in
                 }
                 def isAipEnabled = session.getAttribute("aipEnabled")
-                if(!isAipEnabled) {
+                if(isAipEnabled==null) {// isAipEnabled can have either true or false but it should not be null
                     isAipEnabled = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES
-                    session.setAttribute("aipEnabled", isAipEnabled)
+                    session.setAttribute("aipEnabled", isAipEnabled) //initialize it to true/false
                 }
                 log.debug( "Is AIP Enabled $isAipEnabled" )
                 if (!isAipEnabled) {
@@ -54,19 +53,19 @@ class GateKeepingFilters {
                 if (!urlList) {
                     return true // No Action it no process URL maintained in System
                 }
-                log.debug( "urlList from application context${servletContext['urlList']}" )
+
                 // get urls from tables. Check and cache
                 // only want to look at type 'document'? not stylesheet, script, gif, font, ? ?
                 // at this point he getRequestURI returns the forwared dispatcher URL */aip/myplace.dispatch
                 boolean noUrlToCheck = urlList.find {it.contains( path )} == null
-                log.debug( "No Url to check $noUrlToCheck" )
+
                 if (noUrlToCheck) {
                     return true // No Action it requested path is not among URL
                 }
                 def persona = session.getAttribute( 'selectedRole' )?.persona?.code
                 log.debug( "Persona $persona" )
                 def isBlockingUrl = isBlockingUrl( springSecurityService.getAuthentication().user.pidm, path, persona )
-                log.debug( "isBlockingUrl $isBlockingUrl" )
+
                 if (!isBlockingUrl) {
                     return true // No Action if no process process
                 }
@@ -103,14 +102,8 @@ class GateKeepingFilters {
 
     // look a ThemeUtil for expiring cache pattern
     private boolean isBlockingUrl( long pidm, String path, String persona ) {
-        log.debug( "param => pidm: $pidm , path : $path, persona : $persona" )
-        StopWatch stopWatch = new StopWatch("GateKeepingFilters.isBlockingUrl")
-        stopWatch.start("UserBlockedProcessReadOnly")
 
         List<UserBlockedProcessReadOnly> blockedActionItemList = UserBlockedProcessReadOnly.fetchBlockedProcesses( pidm )
-
-        stopWatch.stop()
-        log.debug stopWatch.prettyPrint()
 
         if (!blockedActionItemList) {
             return false
