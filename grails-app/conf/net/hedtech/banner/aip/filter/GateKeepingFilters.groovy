@@ -10,16 +10,17 @@ import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.web.servlet.GrailsUrlPathHelper
-import org.springframework.util.StopWatch
 
 class GateKeepingFilters {
-    private static final log = Logger.getLogger("net.hedtech.banner.aip.filter.GateKeepingFilters")
+    private static final log = Logger.getLogger( "net.hedtech.banner.aip.filter.GateKeepingFilters" )
     // Same as in GeneralSsbConfigService. Didn't want to create dependency on General App. This code needs to be consumable by Student Apps
     def springSecurityService
     private static final String SLASH = '/'
     private static final String QUESTION_MARK = '?'
     private static final String YES = 'Y'
     private static final String NO = 'N'
+    private static final String ENABLED = 'ENABLED'
+    private static final String DISABLED = 'DISABLED'
     private static final String PERSONA_EVERYONE = 'EVERYONE'
     def dependsOn = [net.hedtech.banner.security.AccessControlFilters.class]
     def filters = {
@@ -34,15 +35,7 @@ class GateKeepingFilters {
                 if (!springSecurityService.isLoggedIn()) {
                     return true // No Action If not logged in
                 }
-                def isAipEnabled = session.getAttribute("aipEnabled")
-                if(isAipEnabled==null) {// isAipEnabled can have either true or false but it should not be null
-                    isAipEnabled = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES
-                    session.setAttribute("aipEnabled", isAipEnabled) //initialize it to true/false
-                }
-                log.debug( "Is AIP Enabled $isAipEnabled" )
-                if (!isAipEnabled) {
-                    return true // NO ACTION If AIP Not enabled
-                }
+
                 def urlList = []
                 if (!servletContext['urlList']) {
                     log.debug( "inside setting urlList in app context" )
@@ -58,14 +51,25 @@ class GateKeepingFilters {
                 // only want to look at type 'document'? not stylesheet, script, gif, font, ? ?
                 // at this point he getRequestURI returns the forwared dispatcher URL */aip/myplace.dispatch
                 boolean noUrlToCheck = urlList.find {it.contains( path )} == null
-
+                log.debug( "No Url to check $noUrlToCheck" )
                 if (noUrlToCheck) {
                     return true // No Action it requested path is not among URL
                 }
+                String aipEnabledStatus = session.getAttribute( "aipEnabledStatus" )
+                if (!aipEnabledStatus) {
+                    // aipEnabledStatus can have either ENABLED or DISABLED but it should not be null
+                    aipEnabledStatus = IntegrationConfiguration.fetchByProcessCodeAndSettingName( 'GENERAL_SSB', 'ENABLE.ACTION.ITEMS' ).value == YES ? ENABLED : DISABLED
+                    session.setAttribute( "aipEnabledStatus", aipEnabledStatus )
+                }
+                log.debug( "AIP $aipEnabledStatus" )
+                if (aipEnabledStatus == DISABLED) {
+                    return true // NO ACTION If AIP Not enabled
+                }
+
                 def persona = session.getAttribute( 'selectedRole' )?.persona?.code
                 log.debug( "Persona $persona" )
                 def isBlockingUrl = isBlockingUrl( springSecurityService.getAuthentication().user.pidm, path, persona )
-
+                log.debug( "isBlockingUrl $isBlockingUrl" )
                 if (!isBlockingUrl) {
                     return true // No Action if no process process
                 }
