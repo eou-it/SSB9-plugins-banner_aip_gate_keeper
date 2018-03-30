@@ -75,7 +75,7 @@ class GateKeepingFilters {
                 }
                 String mepCode = session.getAttribute( 'mep' )
                 log.debug( "mepCode $mepCode" )
-                def configUrl = Holders.config.GENERALLOCATION + '/ssb/aip/informedList#/informedList'
+                def configUrl = Holders.config.GENERALLOCATION + '/ssb/aip/informedList/informedList'
                 if (mepCode) {
                     configUrl = "$configUrl?mepCode=$mepCode"
                 }
