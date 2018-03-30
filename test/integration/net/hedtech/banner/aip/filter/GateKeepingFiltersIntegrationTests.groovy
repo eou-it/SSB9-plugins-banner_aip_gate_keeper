@@ -25,7 +25,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
 
     static final String TESTGENERALURL = 'https://someplace.mytestplace.edu'
 
-    static final String SHIPPEDURI = "/ssb/aip/informedList#/informedList"
+    static final String SHIPPEDURI = "/ssb/aip/informedList/informedList"
 
     def filterInterceptor
 
