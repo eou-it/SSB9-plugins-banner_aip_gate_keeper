@@ -76,8 +76,10 @@ class GateKeepingFilters {
                 String mepCode = session.getAttribute( 'mep' )
                 log.debug( "mepCode $mepCode" )
                 def configUrl = Holders.config.GENERALLOCATION + '/ssb/aip/informedList/informedList'
+                def encodePath = getEncodeUrl(request)
+                configUrl = "$configUrl?reUrl=$encodePath"
                 if (mepCode) {
-                    configUrl = "$configUrl?mepCode=$mepCode"
+                    configUrl = "$configUrl&mepCode=$mepCode"
                 }
                 log.debug( "URL to redirect $configUrl" )
                 redirect( url: configUrl )
@@ -140,5 +142,21 @@ class GateKeepingFilters {
             return true
         }
         false
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    private static def getEncodeUrl(request){
+        GrailsUrlPathHelper urlPathHelper = new GrailsUrlPathHelper()
+        String path = urlPathHelper.getOriginatingRequestUri( request )
+        if (request?.getQueryString()) {
+            path = path + QUESTION_MARK + request?.getQueryString()
+        }
+        int serverPort = (new org.springframework.security.web.PortResolverImpl()).getServerPort(request)
+        String url = request.getScheme() +"://"+ request.getServerName() + (serverPort > 0)?":"+ serverPort: "" + path
+        return URLEncoder.encode(url,'utf-8')
     }
 }
