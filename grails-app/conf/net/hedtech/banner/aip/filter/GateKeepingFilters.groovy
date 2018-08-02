@@ -155,8 +155,12 @@ class GateKeepingFilters {
         if (request?.getQueryString()) {
             path = path + QUESTION_MARK + request?.getQueryString()
         }
-        int serverPort = (new org.springframework.security.web.PortResolverImpl()).getServerPort(request)
-        String url = request.getScheme() +"://"+ request.getServerName() + (serverPort > 0)?":"+ serverPort: "" + path
-        return URLEncoder.encode(url,'utf-8')
+        String url = request.getRequestURL()
+        if(url){
+            url = url.substring(0,url.indexOf(request.getContextPath())) + path
+            url = URLEncoder.encode(url,'utf-8')
+        }        
+        return url
+
     }
 }
