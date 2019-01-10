@@ -1,5 +1,5 @@
 /*********************************************************************************
- Copyright 2018 Ellucian Company L.P. and its affiliates.
+ Copyright 2018-2019 Ellucian Company L.P. and its affiliates.
  **********************************************************************************/
 package net.hedtech.banner.aip.gatekeeping
 
@@ -7,7 +7,14 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.hibernate.annotations.Type
 
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Embeddable
+import javax.persistence.EmbeddedId
+import javax.persistence.Entity
+import javax.persistence.NamedQueries
+import javax.persistence.NamedQuery
+import javax.persistence.Table
+import javax.persistence.Version
 
 
 @NamedQueries(value = [
