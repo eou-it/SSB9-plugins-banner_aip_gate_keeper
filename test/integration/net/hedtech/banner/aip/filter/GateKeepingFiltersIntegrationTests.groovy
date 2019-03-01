@@ -1,5 +1,5 @@
 /*********************************************************************************
- Copyright 2018 Ellucian Company L.P. and its affiliates.
+ Copyright 2018-2019 Ellucian Company L.P. and its affiliates.
  **********************************************************************************/
 package net.hedtech.banner.aip.filter
 
@@ -190,7 +190,7 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull( response.redirectedUrl )
         CharSequence cs1 = "informedList"
         assertTrue( response.redirectedUrl.contains( cs1 ) )
-        assertEquals( configuredBase + SHIPPEDURI, response.redirectedUrl )
+        assertTrue(response.redirectedUrl.contains( 'reUrl' ) )
     }
 
 
