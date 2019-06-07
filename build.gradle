@@ -24,7 +24,9 @@ apply plugin:"net.saliman.cobertura"
 
 codenarc {
     toolVersion = '0.27.0'
-    configFile = file("${rootProject.projectDir}/config/codenarc/rules.groovy")
+//    configFile = file("${rootProject.projectDir}/config/codenarc/rules.groovy")
+    def codenarcRulePath = project(":banner-codenarc").projectDir.absolutePath + "/config/codenarc/rules.groovy"
+    configFile = file(codenarcRulePath)
     reportFormat = 'html'
     ignoreFailures = true
 }
