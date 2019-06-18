@@ -55,7 +55,11 @@ hibernate {
     flush.mode = AUTO
     packagesToScan="net.hedtech.**.*"
     config.location = [
-
+            "classpath:hibernate-banner-aip-gate-keeper.cfg.xml",
+            "classpath:hibernate-banner-core.cfg.xml",
+            "classpath:hibernate-banner-general-utility.cfg.xml",
+            "classpath:hibernate-banner-general-person.cfg.xml",
+            "classpath:hibernate-banner-general-validation-common.cfg.xml"
     ]
 }
 
@@ -70,7 +74,7 @@ environments {
     test {
         ssbEnabled = true
         ssbOracleUsersProxied = true
-        commmgrDataSourceEnabled = false
+        commmgrDataSourceEnabled = true
 
     }
     production {

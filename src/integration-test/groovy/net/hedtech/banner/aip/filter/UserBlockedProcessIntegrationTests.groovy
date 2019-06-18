@@ -3,15 +3,20 @@
  **********************************************************************************/
 package net.hedtech.banner.aip.filter
 
+import grails.testing.mixin.integration.Integration
+import grails.gorm.transactions.Rollback
 import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import net.hedtech.banner.testing.BaseIntegrationTestCase
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+
 /**
- * GateKeepingFiltersIntegrationTests.
+ * GateKeepingInterceptorIntegrationTests.
  */
+@Integration
+@Rollback
 class UserBlockedProcessIntegrationTests extends BaseIntegrationTestCase {
 
     def springSecurityService
@@ -19,7 +24,7 @@ class UserBlockedProcessIntegrationTests extends BaseIntegrationTestCase {
 
     @Before
     void setUp() {
-        formContext = ['GUAGMNU']
+        formContext = ['SELFSERVICE']
         super.setUp()
     }
 

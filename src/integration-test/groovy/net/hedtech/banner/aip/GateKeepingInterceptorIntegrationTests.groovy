@@ -1,23 +1,32 @@
 /*********************************************************************************
  Copyright 2018-2019 Ellucian Company L.P. and its affiliates.
  **********************************************************************************/
-package net.hedtech.banner.aip.filter
+package net.hedtech.banner.aip
 
+import grails.testing.mixin.integration.Integration
+import grails.util.GrailsWebMockUtil
 import grails.util.GrailsWebUtil
 import grails.util.Holders
+import net.hedtech.banner.aip.GateKeepingInterceptor
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 import net.hedtech.banner.general.person.PersonUtility
 import net.hedtech.banner.testing.BaseIntegrationTestCase
+import org.grails.plugins.testing.GrailsMockHttpServletRequest
+import org.grails.plugins.testing.GrailsMockHttpServletResponse
+import org.grails.plugins.web.interceptors.GrailsInterceptorHandlerInterceptorAdapter
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
+import grails.gorm.transactions.Rollback
 
 /**
- * GateKeepingFiltersIntegrationTests.
+ * GateKeepingInterceptorIntegrationTests.
  */
-class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
+@Integration
+@Rollback
+class GateKeepingInterceptorIntegrationTests extends BaseIntegrationTestCase {
 
     static final String UNBLOCKEDURI = '/somethingrandom'
 
@@ -32,15 +41,18 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     def grailsApplication
 
     def grailsWebRequest
-
+    def springSecurityService
 
     @Before
     void setUp() {
-        formContext = ['GUAGMNU']
+        formContext = ['SELFSERVICE']
         super.setUp()
         Holders.config.BANNER_AIP_BLOCK_PROCESS_PERSONA = ['EVERYONE', 'STUDENT', 'REGISTRAR', 'FACULTYINSTRUCTOR', 'FACULTYADVISOR', 'FACULTYBOTH']
         Holders.config.BANNER_AIP_EXCLUDE_LIST = ['selfServiceMenu', 'login', 'error', 'dateConverter']
         Holders.config.GENERALLOCATION = TESTGENERALURL
+        def gateKeepingInterceptor = grailsApplication.mainContext.getBean('gateKeepingInterceptor')
+        filterInterceptor = new  GrailsInterceptorHandlerInterceptorAdapter()
+        filterInterceptor.setInterceptors(gateKeepingInterceptor)
     }
 
 
@@ -95,7 +107,10 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
 
-        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletRequest request = new GrailsMockHttpServletRequest(webAppCtx.servletContext)
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+
+
 
         request.characterEncoding = 'UTF-8'
         request.setRequestURI( UNBLOCKEDURI )
@@ -115,7 +130,9 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
 
-        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletRequest request = new GrailsMockHttpServletRequest(webAppCtx.servletContext)
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(webAppCtx, request, response)
 
         request.characterEncoding = 'UTF-8'
         request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
@@ -136,7 +153,9 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
 
-        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletRequest request = new GrailsMockHttpServletRequest(webAppCtx.servletContext)
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(webAppCtx, request, response)
 
         request.characterEncoding = 'UTF-8'
         request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
@@ -157,7 +176,9 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
 
-        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletRequest request = new GrailsMockHttpServletRequest(webAppCtx.servletContext)
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(webAppCtx, request, response)
 
         request.characterEncoding = 'UTF-8'
         request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
@@ -180,7 +201,9 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
 
-        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletRequest request = new GrailsMockHttpServletRequest(webAppCtx.servletContext)
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(webAppCtx, request, response)
 
         request.characterEncoding = 'UTF-8'
         request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
@@ -205,7 +228,10 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
         assertNotNull person
         loginSSB( person.bannerId, '111111' )
 
-        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletRequest request = new GrailsMockHttpServletRequest(webAppCtx.servletContext)
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+
+        GrailsWebMockUtil.bindMockWebRequest(webAppCtx, request, response)
 
         request.characterEncoding = 'UTF-8'
         request.setRequestURI( BLOCKREGISTERFORCOURSES ) // will need to fix this when values came from DB
@@ -220,17 +246,14 @@ class GateKeepingFiltersIntegrationTests extends BaseIntegrationTestCase {
     }
 
 
-    def getResponse() {
-        grailsWebRequest.currentResponse
-    }
 
 
     def doRequest( MockHttpServletRequest mockRequest ) {
         grailsApplication.config.formControllerMap = formControllerMap
-        grailsWebRequest = GrailsWebUtil.bindMockWebRequest(
-                Holders.getGrailsApplication().mainContext, mockRequest, new MockHttpServletResponse() )
 
-        filterInterceptor.preHandle( grailsWebRequest.request, grailsWebRequest.response, null )
+        MockHttpServletResponse response = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(webAppCtx, mockRequest, response)
+        filterInterceptor.preHandle( mockRequest, response, null )
     }
 
 

@@ -8,6 +8,7 @@ import grails.util.Holders
 import net.hedtech.banner.aip.gatekeeping.ProcessUrls
 import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import org.grails.web.servlet.GrailsUrlPathHelper
+import net.hedtech.banner.general.overall.IntegrationConfiguration
 
 
 
@@ -27,11 +28,40 @@ class GateKeepingInterceptor {
 
 
     GateKeepingInterceptor(){
-        def BANNER_AIP_EXCLUDE_LIST = Holders.config.BANNER_AIP_EXCLUDE_LIST
-        matchAll().excludes(controllerName:"$BANNER_AIP_EXCLUDE_LIST")
+        matchAll()
+                .excludes(controller: 'aipActionItemPosting')
+                .excludes(controller: 'aipAdmin')
+                .excludes(controller: 'aip')
+                .excludes(controller: 'aipPageBuilder')
+                .excludes(controller: 'BCM')
+                .excludes(controller: 'about')
+                .excludes(controller: 'cssManager')
+                .excludes(controller: 'cssRender')
+                .excludes(controller: 'error')
+                .excludes(controller: 'excelExportBase')
+                .excludes(controller: 'dateConverter')
+                .excludes(controller: 'keepAlive')
+                .excludes(controller: 'login')
+                .excludes(controller: 'logout')
+                .excludes(controller: 'resetPassword')
+                .excludes(controller: 'securityQa')
+                .excludes(controller: 'selfServiceMenu')
+                .excludes(controller: 'survey')
+                .excludes(controller: 'test')
+                .excludes(controller: 'theme')
+                .excludes(controller: 'themeEditor')
+                .excludes(controller: 'userAgreement')
+                .excludes(controller: 'userPreference')
+                .excludes(controller: 'shortcut')
+                .excludes(controller: 'customPage')
+                .excludes(controller: 'virtualDomainComposer')
+                .excludes(controller: 'restfulApi')
+                .excludes(controller: 'visualPageModelComposer')
+
     }
 
-    boolean before() {     String path = getServletPath( request )
+    boolean before() {
+        String path = getServletPath( request )
         if (!path) {
             return true // No Path set then no need to redirect
         }
@@ -86,6 +116,7 @@ class GateKeepingInterceptor {
         }
         log.debug( "URL to redirect $configUrl" )
         redirect( url: configUrl )
+        return false
     }
 
     boolean after() { true }
