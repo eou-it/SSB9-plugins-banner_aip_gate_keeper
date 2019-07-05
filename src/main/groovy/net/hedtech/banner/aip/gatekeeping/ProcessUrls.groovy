@@ -86,7 +86,7 @@ class ProcessUrls implements Serializable {
      * @return
      */
     static def fetchUrls( ) {
-        ProcessUrls.withSession {session ->
+        ProcessUrls.withNewSession{session ->
             session.getNamedQuery( 'ProcessUrls.fetchUrls' )
                     .list()
         }
