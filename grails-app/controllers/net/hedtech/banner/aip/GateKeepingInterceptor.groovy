@@ -5,17 +5,15 @@
 package net.hedtech.banner.aip
 
 import grails.util.Holders
+import groovy.util.logging.Slf4j
 import net.hedtech.banner.aip.gatekeeping.ProcessUrls
 import net.hedtech.banner.aip.gatekeeping.UserBlockedProcessReadOnly
 import org.grails.web.servlet.GrailsUrlPathHelper
 import net.hedtech.banner.general.overall.IntegrationConfiguration
 
 
-
+@Slf4j
 class GateKeepingInterceptor {
-    //TODO check the precedence using constants
-    int order = HIGHEST_PRECEDENCE + 50
-
 
     def springSecurityService
     private static final String SLASH = '/'
@@ -28,7 +26,7 @@ class GateKeepingInterceptor {
 
 
     GateKeepingInterceptor(){
-        matchAll()
+           matchAll()
                 .excludes(controller: 'aipActionItemPosting')
                 .excludes(controller: 'aipAdmin')
                 .excludes(controller: 'aip')
@@ -58,10 +56,12 @@ class GateKeepingInterceptor {
                 .excludes(controller: 'restfulApi')
                 .excludes(controller: 'visualPageModelComposer')
 
+        log.info("AIP Gatekeeper Interceptor Initialized !")
     }
 
     boolean before() {
         String path = getServletPath( request )
+        log.trace("Gatekeeper Intercepting the request"+path)
         if (!path) {
             return true // No Path set then no need to redirect
         }
