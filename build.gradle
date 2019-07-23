@@ -22,19 +22,6 @@ apply plugin:"org.grails.grails-gsp"
 apply plugin:"codenarc"
 apply plugin:"net.saliman.cobertura"
 
-codenarc {
-    toolVersion = '0.27.0'
-//    configFile = file("${rootProject.projectDir}/config/codenarc/rules.groovy")
-    def codenarcRulePath = project(":banner-codenarc").projectDir.absolutePath + "/config/codenarc/rules.groovy"
-    configFile = file(codenarcRulePath)
-    reportFormat = 'html'
-    ignoreFailures = true
-}
-
-cobertura {
-    coverageFormats = ['html', 'xml']
-}
-
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
@@ -105,6 +92,22 @@ tasks.withType(Test) {
         events "started", "skipped", "passed", "failed"
         showStandardStreams true
     }
+}
+
+integrationTest {
+    ignoreFailures = true
+}
+
+codenarc {
+    toolVersion = '0.27.0'
+    def codenarcRulePath = project(":banner-codenarc").projectDir.absolutePath + "/config/codenarc/rules.groovy"
+    configFile = file(codenarcRulePath)
+    reportFormat = 'html'
+    ignoreFailures = true
+}
+
+cobertura {
+    coverageFormats = ['html', 'xml']
 }
 
 assets {
